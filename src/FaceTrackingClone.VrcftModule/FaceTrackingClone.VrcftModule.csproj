@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>FaceTrackingClone.VrcftModule</RootNamespace>
+    <AssemblyName>FaceTrackingClone.VrcftModule</AssemblyName>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <!-- Without a RID, ONNX Runtime drags in Android/iOS/Linux/macOS natives (~200MB) that get
+         copied into VRCFT's module folder for nothing. -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <!-- Path to the VRCFaceTracking install. Defaults to the standard Steam location; override with
+       -p:VrcftPath=..., a VrcftPath environment variable, or Directory.Build.local.props. -->
+  <PropertyGroup>
+    <VrcftPath Condition="'$(VrcftPath)' == ''">$(MSBuildProgramFiles32)\Steam\steamapps\common\VRCFaceTracking</VrcftPath>
+  </PropertyGroup>
+
+  <Target Name="CheckVrcftPath" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(VrcftPath)\VRCFaceTracking.SDK.dll')"
+           Text="VRCFaceTracking not found at '$(VrcftPath)'. Set VrcftPath to your install directory." />
+  </Target>
+
+  <ItemGroup>
+    <!-- Private=false: VRCFT already has these loaded. Shipping our own copies into the module
+         folder would give us duplicate types that fail to unify with the host's. -->
+    <Reference Include="VRCFaceTracking.SDK">
+      <HintPath>$(VrcftPath)\VRCFaceTracking.SDK.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRCFaceTracking.Core">
+      <HintPath>$(VrcftPath)\VRCFaceTracking.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>$(VrcftPath)\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FaceTrackingClone.Core\FaceTrackingClone.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="module.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\models\*.onnx" Link="models\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

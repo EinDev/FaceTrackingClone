@@ -1,0 +1,11 @@
+bin/
+obj/
+out/
+*.user
+.vs/
+artifacts/
+captures/
+models/*.onnx
+Directory.Build.local.props
+.idea/
+*.iml

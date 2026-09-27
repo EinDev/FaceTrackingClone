@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>FaceTrackingClone</RootNamespace>
+    <AssemblyName>ftclone</AssemblyName>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Stays a console app: the viewer opens its own window on a dedicated STA thread, so
+         probe/grab/watch keep working normally from a terminal. -->
+    <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <!-- Same RID as the module so the CLI can be shipped into the module folder and share
+         its flattened native layout (onnxruntime.dll at the root rather than runtimes/...). -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <!-- Workstation + background GC: lowest pause times. The whole point of this
+         project is surviving stalls, so we must not introduce blocking gen2 pauses. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FaceTrackingClone.Core\FaceTrackingClone.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Model is fetched, not committed: it is ~23MB and belongs to Project Babble. -->
+    <None Include="..\..\models\*.onnx" Link="models\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
