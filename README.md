@@ -87,10 +87,28 @@ either with `-p:VrcftPath=...` or in a `Directory.Build.local.props` (gitignored
 </Project>
 ```
 
+No VRCFaceTracking install? `.\tools\fetch-vrcft.ps1 [-Version 5.4.5]` builds the reference
+assemblies from VRCFT's source into `.vrcft\<version>\` and prints the path.
+
 ```powershell
 .\tools\install-module.ps1        # builds and installs to %APPDATA%\VRCFaceTracking\CustomLibs\
-.\tools\package.ps1               # builds out\FaceTrackingClone-<version>.zip for release
+.\tools\package.ps1               # builds out\FaceTrackingClone-<version>.zip
 ```
+
+## Supported VRCFaceTracking versions
+
+`tools/vrcft-versions.json` lists the VRCFT releases CI compiles against, each pinned to the
+commit it was cut from (VRCFT stopped tagging after v4). The first entry is what release zips are
+built against. To support a new VRCFT release, add it at the top and drop the oldest.
+
+## Releasing
+
+Releases are cut by [release-please](https://github.com/googleapis/release-please), so commit
+messages on `main` must follow [Conventional Commits](https://www.conventionalcommits.org/):
+`fix:` bumps the patch version, `feat:` the minor, and `feat!:` or a `BREAKING CHANGE:` footer the
+major (the minor, while below 1.0). release-please keeps a release PR open that bumps the version in
+`module.json` and updates `CHANGELOG.md`. Merging it tags the release, and the zip is built and
+attached automatically.
 
 Installs as **VIVE Facial Tracker (FaceTrackingClone)**, providing **expression only**. Keep the
 SRanipal module installed for **eye** — that half genuinely cannot be replaced. The two run side
@@ -142,6 +160,7 @@ src/FaceTrackingClone/
   Imaging/      Greyscale BMP writer
 tools/ApiDump/  Reflects over VRCFT's net10 assemblies from a net7 host
 tools/package/  Installer and readme shipped inside the release zip
+.github/        CI (VRCFT version matrix) and release-please
 ```
 
 ## Licence

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  versions:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.read.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: read
+        run: echo "matrix=$(jq -c . tools/vrcft-versions.json)" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: build (VRCFT ${{ matrix.version }})
+    needs: versions
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/cache@v6
+        with:
+          path: .vrcft/${{ matrix.version }}
+          key: vrcft-${{ matrix.ref }}
+
+      - name: Build VRCFT ${{ matrix.version }} reference assemblies
+        shell: pwsh
+        run: ./tools/fetch-vrcft.ps1 -Version '${{ matrix.version }}'
+
+      - name: Build module
+        shell: pwsh
+        run: dotnet build src/FaceTrackingClone.VrcftModule/FaceTrackingClone.VrcftModule.csproj -c Release --nologo "-p:VrcftPath=$PWD\.vrcft\${{ matrix.version }}"
+
+      - name: Build CLI
+        shell: pwsh
+        run: dotnet build src/FaceTrackingClone/FaceTrackingClone.csproj -c Release --nologo
