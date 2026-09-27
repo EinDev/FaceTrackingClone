@@ -165,6 +165,15 @@ tools/package/  Installer and readme shipped inside the release zip
 
 ## Licence
 
-MIT, see `LICENSE`. The lip model is **not** covered by this and is not redistributed here: it
-belongs to [Project Babble](https://github.com/Project-Babble/ProjectBabble) and is downloaded
-from them at install time.
+This project's code is MIT, see `LICENSE`. Two things it uses are licensed separately:
+
+- **The lip model** belongs to [Project Babble](https://github.com/Project-Babble/ProjectBabble)
+  and is under the [Babble Software Distribution License 1.0](https://github.com/Project-Babble/ProjectBabble/blob/main/LICENSE.md),
+  which **forbids commercial use**. It is not redistributed here; the installer downloads it from
+  Babble. The MIT licence covers this code only, not the model: commercial use would need a
+  different model.
+- **ONNX Runtime** (MIT, Microsoft) ships in the release zip; its licence and third-party notices
+  are included under `licenses/`.
+
+Not affiliated with or endorsed by HTC, VIVE, Tobii, VRCFaceTracking or Project Babble. Product
+names are used only to describe compatible hardware and software.

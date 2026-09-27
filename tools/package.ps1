@@ -43,6 +43,21 @@ foreach ($name in 'ftclone.exe', 'ftclone.dll', 'ftclone.runtimeconfig.json', 'f
 Copy-Item (Join-Path $PSScriptRoot "package\*") $stage
 Copy-Item (Join-Path $root "LICENSE") $stage
 
+# ONNX Runtime's binaries ship in the zip, so its licence and third-party notices must too.
+# The restore output says exactly which packages and versions were used, and where they live.
+$assets = Get-Content (Join-Path $root "src\FaceTrackingClone.Core\obj\project.assets.json") -Raw | ConvertFrom-Json
+$packageRoot = @($assets.packageFolders.PSObject.Properties.Name)[0]
+foreach ($lib in $assets.libraries.PSObject.Properties) {
+    if ($lib.Name -notlike "Microsoft.ML.OnnxRuntime*") { continue }
+    $packageName = $lib.Name.Split("/")[0]
+    $dest = Join-Path $stage "licenses\$packageName"
+    New-Item -ItemType Directory -Force $dest | Out-Null
+    foreach ($file in $lib.Value.files | Where-Object { $_ -match "^(LICENSE|ThirdPartyNotices)" }) {
+        Copy-Item (Join-Path $packageRoot (Join-Path $lib.Value.path $file)) $dest
+    }
+}
+if (-not (Test-Path (Join-Path $stage "licenses"))) { throw "ONNX Runtime licence files not found." }
+
 if (Test-Path $zip) { Remove-Item $zip -Force }
 Compress-Archive -Path $stage -DestinationPath $zip
 
