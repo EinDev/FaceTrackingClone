@@ -22,3 +22,12 @@ Setup notes
 
 Uninstall
   Delete %APPDATA%\VRCFaceTracking\CustomLibs\b3f1c0d2-5a44-4e18-9c77-2f8ad1e6b901
+
+Licences
+  - FaceTrackingClone: MIT, see LICENSE.
+  - ONNX Runtime: MIT, see licenses\.
+  - The lip model is downloaded from Project Babble and is under the Babble Software
+    Distribution License 1.0, which forbids commercial use:
+    https://github.com/Project-Babble/ProjectBabble/blob/main/LICENSE.md
+
+Not affiliated with or endorsed by HTC, VIVE, Tobii, VRCFaceTracking or Project Babble.
