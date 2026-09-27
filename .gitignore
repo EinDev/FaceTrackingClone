@@ -9,3 +9,4 @@ models/*.onnx
 Directory.Build.local.props
 .idea/
 *.iml
+.vrcft/

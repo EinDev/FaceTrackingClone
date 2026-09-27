@@ -14,7 +14,8 @@
   </PropertyGroup>
 
   <!-- Path to the VRCFaceTracking install. Defaults to the standard Steam location; override with
-       -p:VrcftPath=..., a VrcftPath environment variable, or Directory.Build.local.props. -->
+       -p:VrcftPath=..., a VrcftPath environment variable, or Directory.Build.local.props.
+       tools/fetch-vrcft.ps1 builds a matching set from VRCFT's source. -->
   <PropertyGroup>
     <VrcftPath Condition="'$(VrcftPath)' == ''">$(MSBuildProgramFiles32)\Steam\steamapps\common\VRCFaceTracking</VrcftPath>
   </PropertyGroup>
@@ -35,10 +36,12 @@
       <HintPath>$(VrcftPath)\VRCFaceTracking.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-      <HintPath>$(VrcftPath)\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Compile-time only, for the same reason: the host provides it at runtime. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0"
+                      ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

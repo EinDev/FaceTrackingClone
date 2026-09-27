@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+
+  # Runs here rather than on: release, because releases made with GITHUB_TOKEN
+  # do not trigger other workflows.
+  package:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build zip against the newest supported VRCFT
+        shell: pwsh
+        run: |
+          $vrcft = ./tools/fetch-vrcft.ps1
+          ./tools/package.ps1 -VrcftPath $vrcft
+
+      - name: Attach zip to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload '${{ needs.release-please.outputs.tag_name }}' (Get-ChildItem out/*.zip).FullName
